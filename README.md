@@ -1,4 +1,4 @@
-# Network Checker 🌐
+# Network Checker 🌐 [![Build and Release](https://github.com/PabloReca/network-checker/actions/workflows/build.yml/badge.svg)](https://github.com/PabloReca/network-checker/actions/workflows/build.yml)
 
 A professional, high-performance network monitoring application built with **Wails** (Go backend) and **Vanilla JavaScript** (Frontend).
 
