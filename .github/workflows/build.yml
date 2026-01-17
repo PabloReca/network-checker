@@ -55,8 +55,10 @@ jobs:
       - name: Package macOS (DMG)
         if: matrix.os == 'macos-latest'
         run: |
-          hdiutil create -volname "Network Checker" -srcfolder build/bin/NetworkChecker.app -ov -format UDZO NetworkChecker.dmg
-          mv NetworkChecker.dmg build/bin/
+          # Give the OS a moment to release handles on the build folder
+          sleep 5
+          hdiutil create -volname "Network Checker" -srcfolder build/bin/NetworkChecker.app -ov -format UDZO NetworkChecker-temp.dmg
+          mv NetworkChecker-temp.dmg build/bin/NetworkChecker.dmg
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
