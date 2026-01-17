@@ -3,6 +3,8 @@ package backend
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net"
 	"os"
 	"path/filepath"
@@ -12,12 +14,39 @@ import (
 )
 
 type App struct {
-	ctx context.Context
+	ctx     context.Context
+	logFile *os.File
 }
 
 // Startup - Wails v2 lifecycle hook
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+	a.initLogger()
+}
+
+func (a *App) initLogger() {
+	path, err := logPath()
+	if err != nil {
+		return
+	}
+
+	dir := filepath.Dir(path)
+	_ = os.MkdirAll(dir, 0755)
+
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return
+	}
+	a.logFile = f
+	log.SetOutput(f)
+	log.Println("--- Application Started ---")
+}
+
+func (a *App) log(message string) {
+	if a.logFile != nil {
+		log.Println(message)
+	}
+	fmt.Println(message)
 }
 
 // GetContext - Expose context for runtime calls
@@ -27,11 +56,14 @@ func (a *App) GetContext() context.Context {
 
 // CheckDeviceByIP checks if a device is reachable on port 80
 func (a *App) CheckDeviceByIP(ip string) bool {
-	conn, err := net.DialTimeout("tcp", ip+":80", 1*time.Second)
+	a.log(fmt.Sprintf("Checking device: %s", ip))
+	conn, err := net.DialTimeout("tcp", ip+":80", 2*time.Second)
 	if err != nil {
+		a.log(fmt.Sprintf("  FAILED %s: %v", ip, err))
 		return false
 	}
-	conn.Close()
+	defer conn.Close()
+	a.log(fmt.Sprintf("  SUCCESS %s: Connected", ip))
 	return true
 }
 
@@ -112,4 +144,12 @@ func configPath() (string, error) {
 		return "", err
 	}
 	return filepath.Join(home, "Documents", "network-checker", "config.json"), nil
+}
+
+func logPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, "Documents", "network-checker", "app.log"), nil
 }
