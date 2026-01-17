@@ -159,7 +159,22 @@ input {
   gap: 0.25rem;
 }
 
-.nic-status p {
+.nic-status p,
+.last-check {
   font-size: 0.75rem;
   color: #a3a3a3;
+}
+
+/* Single NIC styles */
+.device-card.single-nic .device-card-header {
+  border-bottom: none;
+  min-height: 5rem;
+}
+
+.device-card.single-nic .nic-ip {
+  margin-top: 0.125rem;
+}
+
+.device-card.single-nic .last-check {
+  margin-top: 0.25rem;
 }

@@ -1,24 +1,50 @@
 {
   "devices": [
     {
-      "name": "Device 1",
+      "name": "Datacenter Server",
       "nics": [
         {
-          "name": "eth0",
+          "name": "Management",
           "ip": "192.168.1.10"
         },
         {
-          "name": "eth1",
+          "name": "Production",
           "ip": "10.0.0.10"
+        },
+        {
+          "name": "Backup",
+          "ip": "10.0.1.10"
         }
       ]
     },
     {
-      "name": "Device 2",
+      "name": "Office Router",
+      "nics": [
+        {
+          "name": "WAN",
+          "ip": "8.8.8.8"
+        },
+        {
+          "name": "LAN",
+          "ip": "192.168.1.1"
+        }
+      ]
+    },
+    {
+      "name": "Raspberry Pi",
+      "nics": [
+        {
+          "name": "",
+          "ip": "192.168.1.25"
+        }
+      ]
+    },
+    {
+      "name": "IP Camera",
       "nics": [
         {
           "name": "eth0",
-          "ip": "192.168.1.11"
+          "ip": "192.168.1.50"
         }
       ]
     }

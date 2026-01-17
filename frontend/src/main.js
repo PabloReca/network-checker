@@ -26,8 +26,15 @@ function render() {
     return
   }
 
-  grid.innerHTML = devicesData.map(device => `
-    <div class="device-card">
+  grid.innerHTML = devicesData.map(device => {
+    const isSingleNic = device.nics && device.nics.length === 1
+    const nic = isSingleNic ? device.nics[0] : null
+    const key = isSingleNic ? `${device.name}-${nic.name || 'default'}` : null
+
+    if (isSingleNic && !lastChecks[key]) lastChecks[key] = new Date()
+
+    return `
+    <div class="device-card ${isSingleNic ? 'single-nic' : ''}">
       <div class="device-card-header">
         <div class="device-info">
           <div class="device-icon">
@@ -40,15 +47,22 @@ function render() {
           </div>
           <div>
             <h3 class="device-name">${device.name}</h3>
-            <p class="device-interfaces">${device.nics ? device.nics.length : 0} interface${device.nics && device.nics.length !== 1 ? 's' : ''}</p>
+            ${isSingleNic ? `
+              <p class="nic-ip">${nic.ip}</p>
+              <p class="last-check">Last check: <span id="check-${key}">${formatTime(lastChecks[key])}</span></p>
+            ` : `
+              <p class="device-interfaces">${device.nics.length} interface${device.nics.length !== 1 ? 's' : ''}</p>
+            `}
           </div>
         </div>
+        ${isSingleNic ? `<span class="badge" id="status-${key}">?</span>` : ''}
       </div>
+      ${!isSingleNic ? `
       <div class="device-card-body">
         ${(device.nics || []).map(nic => {
-    const key = `${device.name}-${nic.name}`
-    if (!lastChecks[key]) lastChecks[key] = new Date()
-    return `
+      const nicKey = `${device.name}-${nic.name}`
+      if (!lastChecks[nicKey]) lastChecks[nicKey] = new Date()
+      return `
             <div class="nic-card">
               <div class="nic-info">
                 <div class="nic-header">
@@ -60,24 +74,25 @@ function render() {
                     <path d="M12 12V8"></path>
                   </svg>
                   <span class="nic-name">${nic.name}</span>
-                  <span class="badge" id="status-${key}">?</span>
+                  <span class="badge" id="status-${nicKey}">?</span>
                 </div>
                 <p class="nic-ip">${nic.ip}</p>
               </div>
               <div class="nic-status">
-                <p>Last check: <span id="check-${key}">${formatTime(lastChecks[key])}</span></p>
+                <p>Last check: <span id="check-${nicKey}">${formatTime(lastChecks[nicKey])}</span></p>
               </div>
             </div>
           `
-  }).join('')}
+    }).join('')}
       </div>
+      ` : ''}
     </div>
-  `).join('')
+  `}).join('')
 }
 
 // Check status for a single NIC
 async function checkStatus(device, nic) {
-  const key = `${device.name}-${nic.name}`
+  const key = `${device.name}-${nic.name || 'default'}`
   try {
     const online = await CheckDeviceByIP(nic.ip)
     const statusEl = document.getElementById(`status-${key}`)
