@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net"
 	"os"
 	"path/filepath"
 	"time"
 
+	probing "github.com/prometheus-community/pro-bing"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -54,16 +54,34 @@ func (a *App) GetContext() context.Context {
 	return a.ctx
 }
 
-// CheckDeviceByIP checks if a device is reachable on port 80
+// CheckDeviceByIP checks if a device responds to ICMP Ping
 func (a *App) CheckDeviceByIP(ip string) bool {
-	a.log(fmt.Sprintf("Checking device: %s", ip))
-	conn, err := net.DialTimeout("tcp", ip+":80", 2*time.Second)
+	a.log(fmt.Sprintf("Pinging device: %s", ip))
+
+	pinger, err := probing.NewPinger(ip)
 	if err != nil {
-		a.log(fmt.Sprintf("  FAILED %s: %v", ip, err))
+		a.log(fmt.Sprintf("  ERROR creating pinger for %s: %v", ip, err))
 		return false
 	}
-	defer conn.Close()
-	a.log(fmt.Sprintf("  SUCCESS %s: Connected", ip))
+
+	// Set to non-privileged (UDP) ping. Works on macOS and most modern OSs without root.
+	pinger.SetPrivileged(false)
+	pinger.Count = 1
+	pinger.Timeout = 2 * time.Second
+
+	err = pinger.Run() // Blocks until finished
+	if err != nil {
+		a.log(fmt.Sprintf("  FAILED pinging %s: %v", ip, err))
+		return false
+	}
+
+	stats := pinger.Statistics()
+	if stats.PacketLoss > 0 {
+		a.log(fmt.Sprintf("  OFFLINE %s: Packet loss 100%%", ip))
+		return false
+	}
+
+	a.log(fmt.Sprintf("  ONLINE %s: RTT %v", ip, stats.AvgRtt))
 	return true
 }
 

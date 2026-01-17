@@ -1,15 +1,25 @@
 package backend
 
 import (
-	"net"
 	"time"
+
+	probing "github.com/prometheus-community/pro-bing"
 )
 
 func IsHostUp(ip string) bool {
-	conn, err := net.DialTimeout("tcp", ip+":80", 1*time.Second)
+	pinger, err := probing.NewPinger(ip)
 	if err != nil {
 		return false
 	}
-	conn.Close()
-	return true
+	pinger.SetPrivileged(false)
+	pinger.Count = 1
+	pinger.Timeout = 2 * time.Second
+
+	err = pinger.Run()
+	if err != nil {
+		return false
+	}
+
+	stats := pinger.Statistics()
+	return stats.PacketLoss == 0
 }
