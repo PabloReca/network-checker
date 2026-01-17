@@ -1,7 +1,7 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "NetworkChecker",
-  "outputfilename": "NetworkChecker",
+  "name": "Network Checker",
+  "outputfilename": "Network Checker",
   "frontend:install": "npm install",
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",

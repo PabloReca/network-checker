@@ -23,10 +23,10 @@ jobs:
         include:
           - os: windows-latest
             platform: 'windows/amd64,windows/arm64'
-            name: 'NetworkChecker-Windows'
+            name: 'Network-Checker-Windows'
           - os: macos-latest
             platform: 'darwin/universal'
-            name: 'NetworkChecker-macOS'
+            name: 'Network-Checker-macOS'
 
     runs-on: ${{ matrix.os }}
 
@@ -57,8 +57,8 @@ jobs:
         run: |
           # Give the OS a moment to release handles on the build folder
           sleep 5
-          hdiutil create -volname "Network Checker" -srcfolder build/bin/NetworkChecker.app -ov -format UDZO NetworkChecker-temp.dmg
-          mv NetworkChecker-temp.dmg build/bin/NetworkChecker.dmg
+          hdiutil create -volname "Network Checker" -srcfolder build/bin/Network-Checker.app -ov -format UDZO Network-Checker-temp.dmg
+          mv Network-Checker-temp.dmg build/bin/Network-Checker.dmg
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -79,13 +79,13 @@ jobs:
       - name: Download Windows artifacts
         uses: actions/download-artifact@v4
         with:
-          name: NetworkChecker-Windows
+          name: Network-Checker-Windows
           path: release-assets
 
       - name: Download macOS artifacts
         uses: actions/download-artifact@v4
         with:
-          name: NetworkChecker-macOS
+          name: Network-Checker-macOS
           path: release-assets
 
       - name: Create Release
