@@ -10,6 +10,14 @@ body {
   color: #fafafa;
   min-height: 100vh;
   padding: 1.5rem;
+  /* Reset padding as we are using standard title bar now */
+}
+
+.device-grid,
+.nic-card,
+button,
+input {
+  --webkit-app-region: no-drag;
 }
 
 .container {
