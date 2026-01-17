@@ -44,13 +44,22 @@ jobs:
 
       - name: Build Application
         run: |
-          wails build -platform ${{ matrix.platform }}
+          wails build -platform ${{ matrix.platform }}${{ matrix.os == 'windows-latest' && ' -nsis' || '' }}
+
+      - name: Package macOS (DMG)
+        if: matrix.os == 'macos-latest'
+        run: |
+          hdiutil create -volname "Network Checker" -srcfolder build/bin/NetworkChecker.app -ov -format UDZO NetworkChecker.dmg
+          mv NetworkChecker.dmg build/bin/
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}
-          path: build/bin/*
+          path: |
+            build/bin/*.dmg
+            build/bin/*.exe
+            build/bin/*-setup.exe
 
   release:
     needs: build

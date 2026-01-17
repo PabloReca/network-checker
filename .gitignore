@@ -1,3 +1,49 @@
-build/bin
-node_modules
-frontend/dist
+# Wails / Go / Node.js .gitignore
+
+# Build Architecture
+build/bin/
+frontend/dist/
+frontend/package.json.md5
+
+# Dependency directories
+node_modules/
+frontend/node_modules/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Executables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.dmg
+*.pkg
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Go
+/vendor/
+go.work
+go.work.sum
+*.coverprofile
+coverage.out
+
+# Wails generated (often ignored, but some prefer to keep)
+# frontend/wailsjs/
+
+# Local env files
+.env
+.env.*
+!.env.example
