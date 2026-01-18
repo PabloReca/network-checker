@@ -7,10 +7,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	probing "github.com/prometheus-community/pro-bing"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type App struct {
@@ -64,8 +65,10 @@ func (a *App) CheckDeviceByIP(ip string) bool {
 		return false
 	}
 
-	// Set to non-privileged (UDP) ping. Works on macOS and most modern OSs without root.
-	pinger.SetPrivileged(false)
+	// On Windows, SetPrivileged(true) is required for the library to work,
+	// and surprisingly it doesn't always require Admin on modern Windows.
+	// On Mac/Linux, false is better as it uses unprivileged UDP sockets.
+	pinger.SetPrivileged(runtime.GOOS == "windows")
 	pinger.Count = 1
 	pinger.Timeout = 2 * time.Second
 
@@ -115,9 +118,9 @@ func (a *App) LoadConfig() (*Config, error) {
 // OpenConfig opens a file dialog to select a JSON configuration file
 func (a *App) OpenConfig() (string, error) {
 	// Open file dialog and get the selected file path
-	selectedFile, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+	selectedFile, err := wailsRuntime.OpenFileDialog(a.ctx, wailsRuntime.OpenDialogOptions{
 		Title: "Select a JSON file",
-		Filters: []runtime.FileFilter{
+		Filters: []wailsRuntime.FileFilter{
 			{
 				DisplayName: "JSON",
 				Pattern:     "*.json",

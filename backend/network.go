@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"runtime"
 	"time"
 
 	probing "github.com/prometheus-community/pro-bing"
@@ -11,7 +12,7 @@ func IsHostUp(ip string) bool {
 	if err != nil {
 		return false
 	}
-	pinger.SetPrivileged(false)
+	pinger.SetPrivileged(runtime.GOOS == "windows")
 	pinger.Count = 1
 	pinger.Timeout = 2 * time.Second
 
